@@ -1,22 +1,25 @@
 name: Automation Workflow
 
+# Triggers: daily 10 PM UTC + manual runs
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  schedule:
+    - cron: '0 22 * * *'  # 10 PM UTC every day
+  workflow_dispatch:       # allows manual trigger
 
 jobs:
   run-automation:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # 2️⃣ Create serviceAccount.json from secret
       - name: Create serviceAccount.json
         run: echo "${{ secrets.SERVICE_ACCOUNT_JSON }}" > serviceAccount.json
 
+      # 3️⃣ Create .env file from individual secrets
       - name: Create .env
         run: |
           echo "GMAIL_USER=${{ secrets.GMAIL_USER }}" >> .env
@@ -30,6 +33,7 @@ jobs:
           echo "APPENDWORKSHEET_NAME=${{ secrets.APPENDWORKSHEET_NAME }}" >> .env
           echo "SERVICE_ACCOUNT_FILE=serviceAccount.json" >> .env
 
+      # 4️⃣ Install Node.js dependencies
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -38,6 +42,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # 5️⃣ Run automation script
       - name: Run script
         run: npm run start
+
 

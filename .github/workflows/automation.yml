@@ -1,0 +1,43 @@
+name: Automation Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  run-automation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Create serviceAccount.json
+        run: echo "${{ secrets.SERVICE_ACCOUNT_JSON }}" > serviceAccount.json
+
+      - name: Create .env
+        run: |
+          echo "GMAIL_USER=${{ secrets.GMAIL_USER }}" >> .env
+          echo "GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}" >> .env
+          echo "SENDER_EMAIL=${{ secrets.SENDER_EMAIL }}" >> .env
+          echo "GOOGLE_SHEET_URL=${{ secrets.GOOGLE_SHEET_URL }}" >> .env
+          echo "WORKSHEET_NAME=${{ secrets.WORKSHEET_NAME }}" >> .env
+          echo "RUN_IMMEDIATELY=${{ secrets.RUN_IMMEDIATELY }}" >> .env
+          echo "RUN_HOUR=${{ secrets.RUN_HOUR }}" >> .env
+          echo "RUN_MINUTE=${{ secrets.RUN_MINUTE }}" >> .env
+          echo "APPENDWORKSHEET_NAME=${{ secrets.APPENDWORKSHEET_NAME }}" >> .env
+          echo "SERVICE_ACCOUNT_FILE=serviceAccount.json" >> .env
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run script
+        run: npm run start
+

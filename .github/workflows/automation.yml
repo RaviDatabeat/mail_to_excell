@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo
+      # 1️⃣ Checkout the repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -33,17 +33,28 @@ jobs:
           echo "APPENDWORKSHEET_NAME=${{ secrets.APPENDWORKSHEET_NAME }}" >> .env
           echo "SERVICE_ACCOUNT_FILE=serviceAccount.json" >> .env
 
-      # 4️⃣ Install Node.js dependencies
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      # 3.1️⃣ Debug: Verify files were created
+      - name: Verify .env and serviceAccount.json
+        run: |
+          echo "Files in workspace:"
+          ls -la
+          echo ""
+          echo "First 5 lines of .env (values hidden):"
+          head -n 5 .env | sed 's/=.*/=****/'
+          echo ""
+          echo "First 5 lines of serviceAccount.json:"
+          head -n 5 serviceAccount.json
+
+      # 4️⃣ Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: '20'
+          python-version: '3.11'
 
+      # 5️⃣ Install Python dependencies
       - name: Install dependencies
-        run: npm install
+        run: pip install -r requirements.txt
 
-      # 5️⃣ Run automation script
-      - name: Run script
-        run: npm run start
-
-
+      # 6️⃣ Run the Python automation script
+      - name: Run automation script
+        run: python main.py
